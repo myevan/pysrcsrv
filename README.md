@@ -12,16 +12,18 @@ WindowsKits Debugger Source Server Helper
 ### svn checkout
 
 ```bat
-svn co http://host/project/trunk S:\Works\Project
+set BRANCH_URL=http://host/project/trunk
+set WORK_ROOT=S:\Works\Project
+svn co %BRANCH_URL% %WORK_ROOT%
 ```
 
 ### svn index
 
 ```bat
-for /f "tokens=2" %%i in ('%SVN% info %WORK_ROOT% ^| findstr "^URL:"') do set SVN_BRANCH_URL=%%i
-for /f "tokens=4" %%i in ('%SVN% info %WORK_ROOT% ^| findstr /C:"Last Changed Rev:"') do set SVN_REV=%%i
+for /f "tokens=2" %%i in ('%SVN% info %WORK_ROOT% ^| findstr "^URL:"') do set BRANCH_URL=%%i
+for /f "tokens=4" %%i in ('%SVN% info %WORK_ROOT% ^| findstr /C:"Last Changed Rev:"') do set REV=%%i
 
-python pysrcsrv\srcsrv.py -v:svn -u:%SVN_BRANCH_URL%@%SVN_REV% -b:S:\Works\Project -p:S:\Works\Project\Binaries\Win64\*.pdb
+python pysrcsrv\srcsrv.py -v:svn -u:%BRANCH_URL%@%REV% -b:%WORK_ROOT% -p:%WORK_ROOT%\Binaries\Win64\*.pdb
 ```
 
 ## 7-Zip
@@ -29,15 +31,27 @@ python pysrcsrv\srcsrv.py -v:svn -u:%SVN_BRANCH_URL%@%SVN_REV% -b:S:\Works\Proje
 ### 7z archive
 
 ```bat
-pushd S:\Works\Project
-"C:\Program Files\7-Zip\7z.exe" a \\Host\Archives\Project\trunk\Project-ver.7z -ir!*.h -ir!*.c -ir!*.hpp -ir!*.cpp
+set VER=YYYYMMDD_hhmmss
+set BRANCH=trunk
+set WORK_NAME=Project
+set WORK_ROOT=S:\Works\Project
+set ARCH_ROOT=\\Host\Archives
+set ARCH_FILE=%ARCH_ROOT%\%WORK_NAME%\%BRANCH%\%WORK_NAME%-%VER%.7z
+pushd %WORK_ROOT%
+"C:\Program Files\7-Zip\7z.exe" a %ARCH_FILE% -ir!*.h -ir!*.c -ir!*.hpp -ir!*.cpp
 popd
 ```
 
 ### 7z index
 
 ```bat
-python pysrcsrv\srcsrv.py -v:7z -u:\\Host\Archives\Project\trunk\Project-ver.7z -b:S:\Works\Project -p:S:\Works\Project\Binaries\Win64\*.pdb
+set VER=YYYYMMDD_hhmmss
+set BRANCH=trunk
+set WORK_NAME=Project
+set WORK_ROOT=S:\Works\Project
+set ARCH_ROOT=\\Host\Archives
+set ARCH_FILE=%ARCH_ROOT%\%WORK_NAME%\%BRANCH%\%WORK_NAME%-%VER%.7z
+python pysrcsrv\srcsrv.py -v:7z -u:%ARCH_FILE% -b:%WORK_ROOT% -p:%WORK_ROOT%\Binaries\Win64\*.pdb
 ```
 
 ## symstore
